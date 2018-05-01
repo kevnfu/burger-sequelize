@@ -13,7 +13,7 @@
       {{#each burgers}}
         {{#unless devoured}}
           <li class="list-group-item">
-            {{id}}. {{burger_name}} 
+            {{id}}. {{name}} 
             <button value="{{id}}" 
               class="btn btn-secondary devour-btn float-right">
               Devour it
@@ -30,7 +30,7 @@
       {{#each burgers}}
         {{#if devoured}}
           <li class="list-group-item disabled">
-            {{id}}. {{burger_name}}
+            {{id}}. {{name}}
           </li>
         {{/if}}
       {{/each}}
@@ -43,7 +43,7 @@
     <div class="col-6">
       <form>
         <div class="form-group">
-          <input type="input" class="form-control" id="burger-input">
+          <input type="input" class="form-control" id="burger-input" required="required">
           <small class="form-text text-muted">Enter a burger you want then click the submit button</small>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
@@ -61,25 +61,24 @@
       url: '/api/burgers',
       method: 'PUT',
       contentType: 'application/json',
-      data: JSON.stringify({id: $(this).val()})
-    }).then(data => {
-      if(data.success) {
-        location.reload();
-      } else {
-        alert('Failed to add burger.');
+      data: JSON.stringify({id: $(this).val()}),
+      statusCode: {
+        200: function() { location.reload() },
+        500: function() { alert('Failed to eat burger.') }
       }
     });
   });
 
   $(document).on('submit', function(event) {
     event.preventDefault();
-    $.post('/api/burgers', 
-      {name: $('#burger-input').val()}
-    ).then(data => {
-      if(data.success) {
-        location.reload();
-      } else {
-        alert('Failed to eat burger.');
+    $.ajax({
+      url: '/api/burgers',
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({name: $('#burger-input').val()}),
+      statusCode: {
+        200: function() { location.reload() },
+        500: function() { alert('Failed') }
       }
     });
   })
