@@ -2,20 +2,21 @@ const router = require('express').Router();
 const db = require('../models');
 
 router.get('/', function(req, res) {
-  db.Burger.findAll().then(burgers => {
-    res.render('index', {burgers})
+  db.Burger.findAll({include: [db.Customer]}).then(burgers => {
+    res.render('index', {burgers});
   });
 });
 
 router.get('/api/burgers', function(req, res) {
-  db.Burger.findAll().then(burgers => {
+  db.Burger.findAll({include: [db.Customer]}).then(burgers => {
     res.json(burgers);
   });
 });
 
-// expects {name: name}
+// {"name": name}
 router.post('/api/burgers', function(req, res) {
-  db.Burger.create({
+  db.Burger
+    .create({
       name: req.body.name,
       devoured: false
     })
@@ -28,11 +29,14 @@ router.post('/api/burgers', function(req, res) {
     });
 });
 
-// expects {id: id}
+// {"id": id, "CustomerId": id}
 router.put('/api/burgers', function(req, res) {
   db.Burger
     .update(
-      {devoured: true},
+      {
+        devoured: true, 
+        CustomerId: req.body.CustomerId
+      },
       {where: {id: req.body.id}}
     )
     .then(function() {
@@ -41,6 +45,39 @@ router.put('/api/burgers', function(req, res) {
     .catch(function(err) {
       console.error(err.stack);
       res.status(500).send('Failed to update burger.');
+    });
+});
+
+router.get('/api/customers', function(req, res) {
+  db.Customer.findAll()
+    .then(customers => res.json(customers));
+});
+
+// ?name=name
+router.get('/api/search/customers', function(req, res) {
+  db.Customer
+    .findOne({
+      where: {name: req.query.name}
+    })
+    .then(customer => res.json(customer))
+    .catch(err => {
+      console.error(err.stack);
+      res.status(500).send('Failed to get customer.');
+    });
+});
+
+// {"name" : name} returns customer
+router.post('/api/customers', function(req, res) {
+  db.Customer
+    .create({
+      name: req.body.name
+    })
+    .then(function(customer) {
+      res.json(customer);
+    })
+    .catch(err => {
+      console.error(err.stack);
+      res.status(500).send('Failed to add customer.');
     });
 });
 

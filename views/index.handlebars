@@ -15,7 +15,8 @@
           <li class="list-group-item">
             {{id}}. {{name}} 
             <button value="{{id}}" 
-              class="btn btn-secondary devour-btn float-right">
+              class="btn btn-secondary devour-btn float-right"
+              data-toggle="modal" data-target="#modal">
               Devour it
             </button>
           </li>
@@ -30,7 +31,10 @@
       {{#each burgers}}
         {{#if devoured}}
           <li class="list-group-item disabled">
-            {{id}}. {{name}}
+            {{id}}. {{name}} 
+            {{#if Customer.name}} 
+              (Eaten by {{Customer.name}})
+            {{/if}}
           </li>
         {{/if}}
       {{/each}}
@@ -41,46 +45,48 @@
   
   <div class="row justify-content-center">
     <div class="col-6">
-      <form>
+      <form id="form-add-burger">
         <div class="form-group">
-          <input type="input" class="form-control" id="burger-input" required="required">
+          {{!-- <label for="burger-name-input">Name</label>
+          <input type="input" class="form-control" id="name-input" required="required">
+          <label for="burger-name-input">Burger</label> --}}
+          <input type="input" class="form-control" id="burger-name-input" required="required">
           <small class="form-text text-muted">Enter a burger you want then click the submit button</small>
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" id="add-burger-btn" class="btn btn-primary">Submit</button>
         </div>
       </form>
     </div>
   </div>
+  
+  {{!-- Modal --}}
+
+  <div class="modal fade" id="modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Who are you?</h5>
+          <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form id="form-eat-burger">
+          <div class="modal-body">
+            <input type="input" id="name-input" name="name-input" class="form-control" required="required">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" id="submit-name-btn" class="btn btn-primary">
+              Eat burger
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 {{#section 'script'}}
-{{!-- <script src="public/test.js" type="text/javascript"></script> --}}
-<script type="text/javascript">
-  $(document).on('click', '.devour-btn', function(event) {
-    $.ajax({
-      url: '/api/burgers',
-      method: 'PUT',
-      contentType: 'application/json',
-      data: JSON.stringify({id: $(this).val()}),
-      statusCode: {
-        200: function() { location.reload() },
-        500: function() { alert('Failed to eat burger.') }
-      }
-    });
-  });
-
-  $(document).on('submit', function(event) {
-    event.preventDefault();
-    $.ajax({
-      url: '/api/burgers',
-      method: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify({name: $('#burger-input').val()}),
-      statusCode: {
-        200: function() { location.reload() },
-        500: function() { alert('Failed') }
-      }
-    });
-  })
-</script>
+<script src="/public/index.js" type="text/javascript"></script>
 {{/section}}
